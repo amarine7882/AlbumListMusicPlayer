@@ -4,16 +4,16 @@
 
 ## Table of Contents
 
-1. [Data Shape](#Data Shape)
+1. [Data Shape](#Data)
 2. [Usage](#Usage)
-  - [Get](#Get)
-  - [Post](#Post)
-  - [Put](#Put)
-  - [Delete](#Delete)
+3. [Get](#Get)
+4. [Post](#Post)
+5. [Put](#Put)
+6. [Delete](#Delete)
 
 ## Data Shape
 
-This data shape is what will be returned bu the server on get requests. This data shape must also be used when submitting new artists to the database
+This data shape is what will be returned by the server on get requests. This data shape must also be used when submitting new artists to the database.
 
 ```sh
 {
@@ -60,8 +60,8 @@ get requests to this endpoint return the following info for an artist of given I
 /artists
 ```
 
-post requests to this endpoint will enter an artist or artists and all artist, album and song info into the database
-data must be complete abd follow the given data shape.
+post requests to this endpoint will enter an artist or artists and all artist, album and song info into the database.
+data must be complete and follow the given data shape.
 
 ### Put
 
@@ -69,7 +69,7 @@ data must be complete abd follow the given data shape.
 /artists/:artistID
 ```
 
-put requests to this endpoint will update any number of given fields on the targeted artist ID. New fields may not be added to an artist. Only existing fields may be modified New data must be sent in the request body as a "data" property and must adhere to the following shape:
+put requests to this endpoint will update any number of given fields on the targeted artist ID. New fields may not be added to an artist. Only existing fields may be modified. New data must be sent in the request body as a "data" property and must adhere to the following shape:
 
 ```sh
 req.body.data = {
