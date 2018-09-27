@@ -5,7 +5,7 @@
 ## Table of Contents
 
 1. [Data Shape](#Data)
-2. [Usage](#Usage)
+2. [API Usage](#Usage)
 3. [Get](#Get)
 4. [Post](#Post)
 5. [Put](#Put)
