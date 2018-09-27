@@ -24,7 +24,7 @@ server.post('/artists', (req, res) => {
 });
 
 server.put('/artists/:artistID', (req, res) => {
-  db.updateArtist(req.params.artistID)
+  db.updateArtist(req.params.artistID, req.body.data)
     .then(data => res.send(data))
     .catch(err => res.send(err));
 });
