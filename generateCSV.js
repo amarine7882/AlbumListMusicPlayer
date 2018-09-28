@@ -8,10 +8,12 @@ const makeArtistEntry = () => `${faker.name.findName()}`;
 const makeAlbumEntry = numberOfArtists => `${faker.random.number({
   min: 1,
   max: numberOfArtists,
-})},${faker.random.words(3)},www.${faker.random.number({
+})},${faker.random.words(
+  3,
+)},https://s3-us-west-1.amazonaws.com/dotthen-sdc-hr101/${faker.random.number({
   min: 1,
   max: 1000,
-})}.com,${faker.date.past(10, '2018-11-01')}`;
+})}.webp,${faker.random.number({ min: 1975, max: 2018 })}`;
 
 const makeSongEntry = numberOfAlbums => `${faker.random.number({ min: 1, max: numberOfAlbums })},${faker.random.words(2)},${Math.floor(
   Math.random() * 250000000,
@@ -31,7 +33,7 @@ const writeArtistCSV = (stream, maxFileEntries) => new Promise((res, rej) => {
 });
 
 const writeAlbumCSV = (stream, maxFileEntries, numberOfArtists) => new Promise((res, rej) => {
-  stream.write('artistId,name,imageUrl,publishYear\n');
+  stream.write('artistId,albumName,imageUrl,publishYear\n');
 
   for (let i = 0; i < maxFileEntries; i += 1) {
     stream.write(`${makeAlbumEntry(numberOfArtists)}\n`);
@@ -41,7 +43,7 @@ const writeAlbumCSV = (stream, maxFileEntries, numberOfArtists) => new Promise((
 });
 
 const writeSongCSV = (stream, maxFileEntries, numberOfAlbums) => new Promise((res, rej) => {
-  stream.write('artistId,name,imageUrl,publishYear\n');
+  stream.write('artistId,songName,streams,length,popularity,addededToLibrary\n');
 
   for (let i = 0; i < maxFileEntries; i += 1) {
     stream.write(`${makeSongEntry(numberOfAlbums)}\n`);
@@ -65,7 +67,7 @@ const generateData = async (maxFileEntries, numberOfArtists, albumsPerArtist, so
   let songRecords = 0;
 
   let artistCSV = fs.createWriteStream('./fakeData/artists/artistCSV1.csv');
-  let albumCSV = fs.createWriteStream('./fakeData/album/albumCSV1.csv');
+  let albumCSV = fs.createWriteStream('./fakeData/albums/albumsCSV1.csv');
   let songCSV = fs.createWriteStream('./fakeData/songs/songCSV1.csv');
 
   while (artistRecords < numberOfArtists) {
@@ -100,4 +102,4 @@ const generateData = async (maxFileEntries, numberOfArtists, albumsPerArtist, so
 // arg 3: average albums per artist desired
 // arg 4: average songs per album desired
 
-generateData(1000000, 10000000, 1, 1);
+generateData(2000000, 10000000, 1, 1);
