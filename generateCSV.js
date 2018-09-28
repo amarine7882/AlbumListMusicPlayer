@@ -27,8 +27,7 @@ const writeArtistCSV = (stream, maxFileEntries) => new Promise((res, rej) => {
     stream.write(`${makeArtistEntry()}\n`);
   }
   stream.on('error', err => rej(err));
-  stream.end();
-  res();
+  stream.end(res);
 });
 
 const writeAlbumCSV = (stream, maxFileEntries, numberOfArtists) => new Promise((res, rej) => {
@@ -38,7 +37,7 @@ const writeAlbumCSV = (stream, maxFileEntries, numberOfArtists) => new Promise((
     stream.write(`${makeAlbumEntry(numberOfArtists)}\n`);
   }
   stream.on('error', err => rej(err));
-  res(stream.end());
+  stream.end(res);
 });
 
 const writeSongCSV = (stream, maxFileEntries, numberOfAlbums) => new Promise((res, rej) => {
@@ -48,12 +47,15 @@ const writeSongCSV = (stream, maxFileEntries, numberOfAlbums) => new Promise((re
     stream.write(`${makeSongEntry(numberOfAlbums)}\n`);
   }
   stream.on('error', err => rej(err));
-  res(stream.end());
+  stream.end(res);
 });
 
 // <----- Function to create all csv data for a given amount of artists ----->
 
-const generateData = async (maxFileEntries, numberOfArtists) => {
+const generateData = async (maxFileEntries, numberOfArtists, albumsPerArtist, songsPerAlbum) => {
+  const numberOfAlbums = numberOfArtists * albumsPerArtist;
+  const numberOfSongs = numberOfAlbums * songsPerAlbum;
+
   let artistCounter = 1;
   let albumCounter = 1;
   let songCounter = 1;
@@ -63,7 +65,7 @@ const generateData = async (maxFileEntries, numberOfArtists) => {
   let songRecords = 0;
 
   let artistCSV = fs.createWriteStream('./fakeData/artists/artistCSV1.csv');
-  let albumCSV = fs.createWriteStream('./fakeData/albums/albumCSV1.csv');
+  let albumCSV = fs.createWriteStream('./fakeData/album/albumCSV1.csv');
   let songCSV = fs.createWriteStream('./fakeData/songs/songCSV1.csv');
 
   while (artistRecords < numberOfArtists) {
@@ -76,28 +78,26 @@ const generateData = async (maxFileEntries, numberOfArtists) => {
     artistCounter += 1;
   }
 
-  while (albumRecords < numberOfArtists * 3.5) {
+  while (albumRecords < numberOfAlbums) {
     await writeAlbumCSV(albumCSV, maxFileEntries, numberOfArtists);
     albumRecords += maxFileEntries;
     albumCSV = fs.createWriteStream(`./fakeData/albums/albumsCSV${albumCounter}.csv`);
-    console.log(
-      `album csv ${albumCounter} of ${Math.ceil((numberOfArtists * 3.5) / maxFileEntries)} done`,
-    );
+    console.log(`album csv ${albumCounter} of ${Math.ceil(numberOfAlbums / maxFileEntries)} done`);
     albumCounter += 1;
   }
 
-  while (songRecords < numberOfArtists * 35) {
-    await writeSongCSV(songCSV, maxFileEntries, numberOfArtists * 3.5);
+  while (songRecords < numberOfSongs) {
+    await writeSongCSV(songCSV, maxFileEntries, numberOfAlbums);
     songRecords += maxFileEntries;
     songCSV = fs.createWriteStream(`./fakeData/songs/songCSV${songCounter}.csv`);
-    console.log(
-      `song record ${songCounter} of ${Math.ceil((numberOfArtists * 35) / maxFileEntries)} done`,
-    );
+    console.log(`song record ${songCounter} of ${Math.ceil(numberOfSongs / maxFileEntries)} done`);
     songCounter += 1;
   }
 };
 
 // arg 1: max records per file desired
 // arg 2: max total artists desired
+// arg 3: average albums per artist desired
+// arg 4: average songs per album desired
 
-generateData(100000, 300000);
+generateData(1000000, 10000000, 1, 1);
