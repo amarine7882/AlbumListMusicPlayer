@@ -8,14 +8,14 @@ const makeArtistEntry = () => `${faker.name.findName()}`;
 const makeAlbumEntry = numberOfArtists => `${faker.random.number({
   min: 1,
   max: numberOfArtists,
-})},${faker.random.words(
+})},"${faker.random.words(
   3,
-)},https://s3-us-west-1.amazonaws.com/dotthen-sdc-hr101/${faker.random.number({
+)}",https://s3-us-west-1.amazonaws.com/dotthen-sdc-hr101/${faker.random.number({
   min: 1,
   max: 1000,
 })}.webp,${faker.random.number({ min: 1975, max: 2018 })}`;
 
-const makeSongEntry = numberOfAlbums => `${faker.random.number({ min: 1, max: numberOfAlbums })},${faker.random.words(2)},${Math.floor(
+const makeSongEntry = numberOfAlbums => `${faker.random.number({ min: 1, max: numberOfAlbums })},"${faker.random.words(2)}",${Math.floor(
   Math.random() * 250000000,
 )},${Math.floor(Math.random() * 221) + 30},${Math.floor(Math.random() * 8)
     + 1},${faker.random.boolean()}`;
@@ -23,8 +23,6 @@ const makeSongEntry = numberOfAlbums => `${faker.random.number({ min: 1, max: nu
 // <------------ Helpers to write files and constrain them to max of X entires -------------------->
 
 const writeArtistCSV = (stream, maxFileEntries) => new Promise((res, rej) => {
-  stream.write('name\n');
-
   for (let i = 0; i < maxFileEntries; i += 1) {
     stream.write(`${makeArtistEntry()}\n`);
   }
@@ -33,8 +31,6 @@ const writeArtistCSV = (stream, maxFileEntries) => new Promise((res, rej) => {
 });
 
 const writeAlbumCSV = (stream, maxFileEntries, numberOfArtists) => new Promise((res, rej) => {
-  stream.write('artistId,albumName,imageUrl,publishYear\n');
-
   for (let i = 0; i < maxFileEntries; i += 1) {
     stream.write(`${makeAlbumEntry(numberOfArtists)}\n`);
   }
@@ -43,8 +39,6 @@ const writeAlbumCSV = (stream, maxFileEntries, numberOfArtists) => new Promise((
 });
 
 const writeSongCSV = (stream, maxFileEntries, numberOfAlbums) => new Promise((res, rej) => {
-  stream.write('artistId,songName,streams,length,popularity,addededToLibrary\n');
-
   for (let i = 0; i < maxFileEntries; i += 1) {
     stream.write(`${makeSongEntry(numberOfAlbums)}\n`);
   }
@@ -58,42 +52,35 @@ const generateData = async (maxFileEntries, numberOfArtists, albumsPerArtist, so
   const numberOfAlbums = numberOfArtists * albumsPerArtist;
   const numberOfSongs = numberOfAlbums * songsPerAlbum;
 
-  let artistCounter = 1;
-  let albumCounter = 1;
-  let songCounter = 1;
+  let artistCounter = 0;
+  let albumCounter = 0;
+  let songCounter = 0;
 
-  let artistRecords = 0;
-  let albumRecords = 0;
-  let songRecords = 0;
+  let artistCSV;
+  let albumCSV;
+  let songCSV;
 
-  let artistCSV = fs.createWriteStream('./fakeData/artists/artistCSV1.csv');
-  let albumCSV = fs.createWriteStream('./fakeData/albums/albumsCSV1.csv');
-  let songCSV = fs.createWriteStream('./fakeData/songs/songCSV1.csv');
-
-  while (artistRecords < numberOfArtists) {
-    await writeArtistCSV(artistCSV, maxFileEntries);
-    artistRecords += maxFileEntries;
+  for (let i = 0; i < numberOfArtists / maxFileEntries; i += 1) {
+    artistCounter += 1;
     artistCSV = fs.createWriteStream(`./fakeData/artists/artistCSV${artistCounter}.csv`);
+    await writeArtistCSV(artistCSV, maxFileEntries);
     console.log(
       `artist csv ${artistCounter} of ${Math.ceil(numberOfArtists / maxFileEntries)} done`,
     );
-    artistCounter += 1;
   }
 
-  while (albumRecords < numberOfAlbums) {
-    await writeAlbumCSV(albumCSV, maxFileEntries, numberOfArtists);
-    albumRecords += maxFileEntries;
-    albumCSV = fs.createWriteStream(`./fakeData/albums/albumsCSV${albumCounter}.csv`);
-    console.log(`album csv ${albumCounter} of ${Math.ceil(numberOfAlbums / maxFileEntries)} done`);
+  for (let i = 0; i < numberOfAlbums / maxFileEntries; i += 1) {
     albumCounter += 1;
+    albumCSV = fs.createWriteStream(`./fakeData/albums/albumsCSV${albumCounter}.csv`);
+    await writeAlbumCSV(albumCSV, maxFileEntries, numberOfArtists);
+    console.log(`album csv ${albumCounter} of ${Math.ceil(numberOfAlbums / maxFileEntries)} done`);
   }
 
-  while (songRecords < numberOfSongs) {
-    await writeSongCSV(songCSV, maxFileEntries, numberOfAlbums);
-    songRecords += maxFileEntries;
-    songCSV = fs.createWriteStream(`./fakeData/songs/songCSV${songCounter}.csv`);
-    console.log(`song record ${songCounter} of ${Math.ceil(numberOfSongs / maxFileEntries)} done`);
+  for (let i = 0; i < numberOfSongs / maxFileEntries; i += 1) {
     songCounter += 1;
+    songCSV = fs.createWriteStream(`./fakeData/songs/songCSV${songCounter}.csv`);
+    await writeSongCSV(songCSV, maxFileEntries, numberOfAlbums);
+    console.log(`song record ${songCounter} of ${Math.ceil(numberOfSongs / maxFileEntries)} done`);
   }
 };
 
