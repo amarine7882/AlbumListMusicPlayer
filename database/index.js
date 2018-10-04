@@ -12,11 +12,18 @@ db.connect()
 
 exports.createRecord = (fields, type) => {
   const columns = Object.keys(fields).join(', ');
-  const values = Object.values(fields).join(', ');
+  let values = Object.values(fields);
+
+  values.forEach((value, idx) => {
+    if (typeof value === 'string') {
+      values[idx] = `'${value}'`;
+    }
+  });
+  values = values.join(', ');
 
   return db
     .query(`INSERT INTO ${type}s (${columns}) VALUES (${values})`)
-    .then(data => console.log(data))
+    .then(result => result)
     .catch(err => err);
 };
 
@@ -39,16 +46,23 @@ AND songs.album_id = albums._id_album`,
 
 exports.updateRecord = (id, newFields, type) => {
   const columns = Object.keys(newFields);
+  const values = Object.values(newFields);
   let queryString = [];
 
-  columns.forEach((column) => {
-    queryString = [...queryString, `${column} = ${newFields[column]}`];
+  values.forEach((value, idx) => {
+    if (typeof value === 'string') {
+      values[idx] = `'${value}'`;
+    }
+  });
+
+  columns.forEach((column, idx) => {
+    queryString = [...queryString, `${column} = ${values[idx]}`];
   });
   queryString = queryString.join(', ');
 
   return db
     .query(`UPDATE ${type}s SET ${queryString} WHERE ${type}s._id_${type} = ${id}`)
-    .then(data => console.log(data))
+    .then(result => result)
     .catch(err => err);
 };
 
@@ -56,12 +70,11 @@ exports.deleteRecord = (id, type) => db
   .query(
     `
     DELETE
-    *
     FROM
     ${type}s
     WHERE
     ${type}s._id_${type} = ${id}
   `,
   )
-  .then(data => console.log(data))
+  .then(result => result)
   .catch(err => err);
