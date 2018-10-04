@@ -1,68 +1,67 @@
-const mongoose = require('mongoose');
+const { Client } = require('pg');
 
-mongoose.connect('mongodb://root:WissemGamra1@ds211143.mlab.com:11143/artists');
-
-const db = mongoose.connection;
-db.on('error', () => console.log('mongoDB connection error'));
-db.once('open', () => console.log('mongoDB connection established'));
-
-const ArtistSchema = new mongoose.Schema({
-  artistID: Number,
-  artistName: String,
-  albums: [
-    {
-      albumID: Number,
-      albumName: String,
-      albumImage: String,
-      publishedYear: Number,
-      songs: [
-        {
-          songID: Number,
-          songName: String,
-          streams: Number,
-          length: Number,
-          popularity: Number,
-          addedToLibrary: Boolean,
-        },
-      ],
-    },
-  ],
+const db = new Client({
+  host: '127.0.0.1',
+  database: 'spotify',
+  port: 5432,
 });
 
-const Artist = mongoose.model('Artist', ArtistSchema);
+db.connect()
+  .then(() => console.log('psql connection established'))
+  .catch(err => console.log(err));
 
-const getArtist = id => new Promise((res, rej) => {
-  Artist.find({ artistID: id }, (err, data) => {
-    if (err) rej(err);
-    res(data);
-  });
-});
+exports.createRecord = (fields, type) => {
+  const columns = Object.keys(fields).join(', ');
+  const values = Object.values(fields).join(', ');
 
-const insertArtists = artists => new Promise((res, rej) => {
-  Artist.create([...artists], (err, result) => {
-    if (err) rej(err);
-    res(result);
-  });
-});
-
-const updateArtist = (id, newValues) => new Promise((res, rej) => {
-  Artist.updateOne({ artistID: id }, { $set: newValues }, (err, results) => {
-    if (err) rej(err);
-    res(results);
-  });
-});
-
-const deleteArtist = id => new Promise((res, rej) => {
-  Artist.deleteOne({ artistID: id }, (err, results) => {
-    if (err) rej(err);
-    res(results);
-  });
-});
-
-module.exports = {
-  Artist,
-  getArtist,
-  insertArtists,
-  updateArtist,
-  deleteArtist,
+  return db
+    .query(`INSERT INTO ${type}s (${columns}) VALUES (${values})`)
+    .then(data => console.log(data))
+    .catch(err => err);
 };
+
+exports.getDataForArtist = id => db
+  .query(
+    `
+SELECT
+*
+FROM
+artists,
+albums,
+songs
+WHERE
+artists._id_artist = ${id}
+AND albums.artist_id = artists._id_artist
+AND songs.album_id = albums._id_album`,
+  )
+  .then(data => data.rows)
+  .catch(err => err);
+
+exports.updateRecord = (id, newFields, type) => {
+  const columns = Object.keys(newFields);
+  let queryString = [];
+
+  columns.forEach((column) => {
+    queryString = [...queryString, `${column} = ${newFields[column]}`];
+  });
+  queryString = queryString.join(', ');
+
+  return db
+    .query(`UPDATE ${type}s SET ${queryString} WHERE ${type}s._id_${type} = ${id}`)
+    .then(data => console.log(data))
+    .catch(err => err);
+};
+
+exports.deleteRecord = (id, type) => db
+  .query(
+    `
+    DELETE
+    *
+    FROM
+    ${type}s
+    WHERE
+    ${type}s._id_${type} = ${id}
+  `,
+  )
+  .then(data => console.log(data))
+  .catch(err => err);
