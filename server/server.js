@@ -13,26 +13,26 @@ server.use(express.static(path.join(__dirname, '../public')));
 
 server.get('/artists/:artistID/albums', (req, res) => {
   db.getDataForArtist(req.params.artistID)
-    .then(data => res.send(data))
-    .catch(err => res.send(err));
+    .then(data => res.status(200).send(data))
+    .catch(err => console.log(err));
 });
 
 server.post('/:type', (req, res) => {
   db.createRecord(req.body, req.params.type)
     .then(data => res.send(data))
-    .catch(err => res.send(err));
+    .catch(err => console.log(err));
 });
 
 server.put('/:type/:id', (req, res) => {
   db.updateRecord(req.params.id, req.body, req.params.type)
     .then(data => res.send(data))
-    .catch(err => res.send(err));
+    .catch(err => console.log(err));
 });
 
 server.delete('/:type/:id', (req, res) => {
   db.deleteRecord(req.params.id, req.params.type)
     .then(data => res.send(data))
-    .catch(err => res.send(err));
+    .catch(err => console.log(err));
 });
 
 module.exports = server;
