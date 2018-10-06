@@ -27,22 +27,23 @@ exports.createRecord = (fields, type) => {
     .catch(err => err);
 };
 
-exports.getDataForArtist = id => db
-  .query(
+exports.getDataForArtist = id => new Promise((res, rej) => {
+  db.query(
     `
-SELECT
-*
-FROM
-artists,
-albums,
-songs
-WHERE
-artists._id_artist = ${id}
-AND albums.artist_id = artists._id_artist
-AND songs.album_id = albums._id_album`,
+  SELECT
+  *
+  FROM
+  artists,
+  albums,
+  songs
+  WHERE
+  artists._id_artist = ${id}
+  AND albums.artist_id = artists._id_artist
+  AND songs.album_id = albums._id_album`,
   )
-  .then(data => data.rows)
-  .catch(err => err);
+    .then(data => res(data))
+    .catch(err => rej(err));
+});
 
 exports.updateRecord = (id, newFields, type) => {
   const columns = Object.keys(newFields);
