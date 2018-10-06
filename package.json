@@ -8,7 +8,7 @@
     "node": ">=6.13.0"
   },
   "scripts": {
-    "start": "nodemon server/index.js",
+    "start": "nodemon server/server.js",
     "react-dev": "webpack -d --watch",
     "react-prod": "webpack -p",
     "gen-data": "node generateCSV.js",
