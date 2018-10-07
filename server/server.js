@@ -1,15 +1,14 @@
 require('newrelic');
 const cluster = require('cluster');
-const os = require('os');
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const http = require('http');
+const tooBusy = require('toobusy-js');
 const db = require('../database/index.js');
 
 if (cluster.isMaster) {
-  const cpuCount = os.cpus().length;
-  for (let i = 0; i < cpuCount; i += 1) {
+  for (let i = 0; i < 8; i += 1) {
     cluster.fork();
   }
 } else {
@@ -17,6 +16,13 @@ if (cluster.isMaster) {
   const server = express();
 
   server.use(cors());
+  server.use((req, res, next) => {
+    if (tooBusy()) {
+      res.status(503).send('Oops, server is busy');
+    } else {
+      next();
+    }
+  });
   server.use(express.static(path.join(__dirname, '../public')));
 
   server.get('/artists/:artistID/albums', (req, res) => {
@@ -43,7 +49,7 @@ if (cluster.isMaster) {
       .catch(err => console.log(err));
   });
 
-  server.listen(3001, () => console.log('Listening on port 3001!'));
+  server.listen(3001, () => console.log('Listening on port 3001'));
 }
 
 cluster.on('exit', (worker) => {
