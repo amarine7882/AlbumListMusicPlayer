@@ -4,11 +4,14 @@ const http = require('http');
 const tooBusy = require('toobusy-js');
 const express = require('express');
 const db = require('../database/index.js');
+const cache = require('./redisCache');
 
-http.globalAgent.maxSockets = 100;
+http.globalAgent.maxSockets = 300;
+
 const server = express();
 
 server.use(cors());
+server.use(express.static(path.join(__dirname, '../public')));
 server.use((req, res, next) => {
   if (tooBusy()) {
     res.status(503).send('Oops, server is busy');
@@ -16,13 +19,8 @@ server.use((req, res, next) => {
     next();
   }
 });
-server.use(express.static(path.join(__dirname, '../public')));
 
-server.get('/artists/:artistID/albums', (req, res) => {
-  db.getDataForArtist(req.params.artistID)
-    .then(data => res.status(200).send(data))
-    .catch(err => console.log(err));
-});
+server.get('/artists/:artistID/albums', cache.getCache);
 
 server.post('/:type', express.json(), (req, res) => {
   db.createRecord(req.body, req.params.type)
