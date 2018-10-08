@@ -1,4 +1,3 @@
-const path = require('path');
 const cors = require('cors');
 const http = require('http');
 const tooBusy = require('toobusy-js');
@@ -11,7 +10,6 @@ http.globalAgent.maxSockets = 300;
 const server = express();
 
 server.use(cors());
-server.use(express.static(path.join(__dirname, '../public')));
 server.use((req, res, next) => {
   if (tooBusy()) {
     res.status(503).send('Oops, server is busy');
