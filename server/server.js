@@ -1,3 +1,4 @@
+require('newrelic');
 const cors = require('cors');
 const http = require('http');
 const tooBusy = require('toobusy-js');
@@ -6,6 +7,7 @@ const db = require('../database/index.js');
 const cache = require('./redisCache');
 
 http.globalAgent.maxSockets = 300;
+const PORT = process.env.PORT || 3001;
 
 const server = express();
 
@@ -18,24 +20,24 @@ server.use((req, res, next) => {
   }
 });
 
-server.get('/artists/:artistID/albums', cache.getCache);
+server.get('/player/artists/:artistID/albums', cache.getCache);
 
-server.post('/:type', express.json(), (req, res) => {
+server.post('/player/:type', express.json(), (req, res) => {
   db.createRecord(req.body, req.params.type)
-    .then(data => res.send(data))
-    .catch(err => console.log(err));
+    .then(() => res.status(200).end())
+    .catch(err => res.status(500).send(err));
 });
 
-server.put('/:type/:id', express.json(), (req, res) => {
+server.put('/player/:type/:id', express.json(), (req, res) => {
   db.updateRecord(req.params.id, req.body, req.params.type)
-    .then(data => res.send(data))
-    .catch(err => console.log(err));
+    .then(() => res.status(200).end())
+    .catch(err => res.status(500).send(err));
 });
 
-server.delete('/:type/:id', (req, res) => {
+server.delete('/player/:type/:id', (req, res) => {
   db.deleteRecord(req.params.id, req.params.type)
-    .then(data => res.send(data))
-    .catch(err => console.log(err));
+    .then(() => res.status(200).end())
+    .catch(err => res.status(500).send(err));
 });
 
-server.listen(3001, () => console.log('Listening on port 3001'));
+server.listen(PORT, () => console.log(`Listening on port ${PORT}`));

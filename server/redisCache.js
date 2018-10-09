@@ -5,12 +5,12 @@ const cache = redis.createClient();
 
 const getNewData = (req, res) => {
   db.getDataForArtist(req.params.artistID)
-    .then(data => {
-      res.status(200).send(data);
-      return data;
+    .then(({ rows }) => {
+      res.status(200).send(rows);
+      return rows;
     })
-    .then(data => cache.setex(req.params.artistID, 3600, JSON.stringify(data)))
-    .catch(error => console.log(error));
+    .then(rows => cache.setex(req.params.artistID, 3600, JSON.stringify(rows)))
+    .catch(err => res.status(500).send(err));
 };
 
 module.exports.getCache = (req, res) => {
