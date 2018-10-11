@@ -27,3 +27,6 @@ dist/
 /fakeData/albums/*.csv
 /fakeData/artists/*.csv
 /fakeData/songs/*.csv
+
+newrelic.js
+newrelic_agent.log
