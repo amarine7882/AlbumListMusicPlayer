@@ -12,25 +12,25 @@ server.use(express.urlencoded({ extended: true }));
 server.use(express.static(path.join(__dirname, '../public')));
 
 server.get('/artists/:artistID/albums', (req, res) => {
-  db.getArtist(req.params.artistID)
+  db.getDataForArtist(req.params.artistID)
     .then(data => res.send(data))
     .catch(err => res.send(err));
 });
 
-server.post('/artists', (req, res) => {
-  db.insertArtists(req.params.artists)
+server.post('/:type', (req, res) => {
+  db.createRecord(req.body, req.params.type)
     .then(data => res.send(data))
     .catch(err => res.send(err));
 });
 
-server.put('/artists/:artistID', (req, res) => {
-  db.updateArtist(req.params.artistID, req.body.data)
+server.put('/:type/:id', (req, res) => {
+  db.updateRecord(req.params.id, req.body, req.params.type)
     .then(data => res.send(data))
     .catch(err => res.send(err));
 });
 
-server.delete('artists/:artistID', (req, res) => {
-  db.deleteArtist(req.params.artistID)
+server.delete('/:type/:id', (req, res) => {
+  db.deleteRecord(req.params.id, req.params.type)
     .then(data => res.send(data))
     .catch(err => res.send(err));
 });
