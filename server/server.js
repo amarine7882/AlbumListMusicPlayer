@@ -6,8 +6,8 @@ const express = require('express');
 const db = require('../database/index.js');
 const cache = require('./redisCache');
 
-http.globalAgent.maxSockets = 300;
-const PORT = 3001;
+http.globalAgent.maxSockets = 200;
+const { PORT } = process.env;
 
 const server = express();
 

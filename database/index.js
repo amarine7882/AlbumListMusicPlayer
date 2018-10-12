@@ -1,13 +1,18 @@
 const { Client } = require('pg');
 
-const DB_IP = process.env.DB_IP;
+const {
+  DB_HOST,
+  DB_PORT,
+  DB_USER,
+  DB_PW,
+} = process.env;
 
 const db = new Client({
-  host: DB_IP,
+  host: DB_HOST,
   database: 'spotify',
-  port: 5432,
-  user: 'andrew',
-  password: '',
+  port: DB_PORT,
+  user: DB_USER,
+  password: DB_PW,
 });
 
 db.connect()
@@ -81,4 +86,3 @@ exports.deleteRecord = (id, type) => new Promise((res, rej) => {
     .then(result => res(result))
     .catch(err => rej(err));
 });
-
