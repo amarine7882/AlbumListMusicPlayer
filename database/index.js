@@ -1,9 +1,13 @@
 const { Client } = require('pg');
 
+const DB_IP = process.env.DB_IP;
+
 const db = new Client({
-  host: '127.0.0.1',
+  host: DB_IP,
   database: 'spotify',
   port: 5432,
+  user: 'andrew',
+  password: '',
 });
 
 db.connect()

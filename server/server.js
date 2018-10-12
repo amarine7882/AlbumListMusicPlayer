@@ -1,24 +1,18 @@
 require('newrelic');
 const cors = require('cors');
 const http = require('http');
-const tooBusy = require('toobusy-js');
+const path = require('path');
 const express = require('express');
 const db = require('../database/index.js');
 const cache = require('./redisCache');
 
 http.globalAgent.maxSockets = 300;
-const PORT = process.env.PORT || 3001;
+const PORT = 3001;
 
 const server = express();
 
 server.use(cors());
-server.use((req, res, next) => {
-  if (tooBusy()) {
-    res.status(503).send('Oops, server is busy');
-  } else {
-    next();
-  }
-});
+server.use(express.static(path.join(__dirname, '../public')));
 
 server.get('/player/artists/:artistID/albums', cache.getCache);
 
