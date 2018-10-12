@@ -24,3 +24,9 @@ coverage
 build/
 dist/
 
+/fakeData/albums/*.csv
+/fakeData/artists/*.csv
+/fakeData/songs/*.csv
+
+newrelic_agent.log
+copy.package.json
