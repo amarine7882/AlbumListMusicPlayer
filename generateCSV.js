@@ -106,6 +106,7 @@ const generateArtists = (numberOfArtists, albumsPerArtist, songsPerAlbum) => {
     console.log('Artists done');
     generateAlbums(numberOfArtists, numberOfAlbums, numberOfSongs);
   });
+
 };
 
 // arg 1: max records per file desired

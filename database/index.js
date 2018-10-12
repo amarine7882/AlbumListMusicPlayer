@@ -81,3 +81,4 @@ exports.deleteRecord = (id, type) => new Promise((res, rej) => {
     .then(result => res(result))
     .catch(err => rej(err));
 });
+
