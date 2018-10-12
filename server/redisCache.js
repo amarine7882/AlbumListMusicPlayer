@@ -1,7 +1,12 @@
 const redis = require('redis');
 const db = require('../database/index.js');
 
-const cache = redis.createClient();
+const { REDIS_HOST, REDIS_PORT } = process.env;
+
+const cache = redis.createClient({
+  host: REDIS_HOST,
+  port: REDIS_PORT,
+});
 
 const getNewData = (req, res) => {
   db.getDataForArtist(req.params.artistID)
