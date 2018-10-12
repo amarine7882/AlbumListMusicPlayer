@@ -1,4 +1,4 @@
-const NEW_RELIC_KEY = process.env.NEW_RELIC_KEY;
+const { NEW_RELIC_KEY } = process.env;
 /**
  * New Relic agent configuration.
  *
